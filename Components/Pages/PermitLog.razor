@@ -1,0 +1,387 @@
+@page "/permits"
+@implements IDisposable
+@inject HikingStateService HikingService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<div class="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header banner -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 pb-5 border-b border-slate-800">
+        <div>
+            <div class="flex items-center gap-2 mb-2">
+                <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800/50">
+                    Cebu Highlands Registry
+                </span>
+                <span class="text-xs text-slate-400">@HikingService.TotalTrails active trail records</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                Trail Access & Permit Log
+            </h1>
+            <p class="text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                Maintain regional access permissions, update weather advisories, and log environmental permits across Cebu peaks.
+            </p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Default"
+                       StartIcon="@Icons.Material.Filled.RestartAlt"
+                       OnClick="ConfirmReset"
+                       Class="border-slate-700 text-slate-300 hover:text-white hover:border-emerald-500 py-2">
+                Reset Sample Data
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.AddLocationAlt"
+                       OnClick="OpenCreateDialog"
+                       Class="px-5 py-2 font-bold shadow-md shadow-emerald-950/50">
+                Register Trail
+            </MudButton>
+        </div>
+    </div>
+
+    <!-- Quick Telemetry Chips with Generous Spacing -->
+    <div class="flex flex-wrap items-center gap-4 text-xs">
+        <div class="px-4 py-2 rounded-xl bg-slate-900/90 border border-slate-800 font-medium">
+            <span class="text-slate-400">Open Peaks:</span>
+            <span class="font-bold text-emerald-400 ml-1.5">@HikingService.OpenTrails</span>
+        </div>
+        <div class="px-4 py-2 rounded-xl bg-slate-900/90 border border-slate-800 font-medium">
+            <span class="text-slate-400">Weather Advisories:</span>
+            <span class="font-bold text-amber-400 ml-1.5">@HikingService.AdvisoryTrails</span>
+        </div>
+        <div class="px-4 py-2 rounded-xl bg-slate-900/90 border border-slate-800 font-medium">
+            <span class="text-slate-400">Closed Paths:</span>
+            <span class="font-bold text-rose-400 ml-1.5">@HikingService.ClosedTrails</span>
+        </div>
+        <div class="px-4 py-2 rounded-xl bg-slate-900/90 border border-slate-800 font-medium">
+            <span class="text-slate-400">Average Guide / Permit Fee:</span>
+            <span class="font-bold font-mono text-emerald-300 ml-1.5">₱@HikingService.AveragePermitFee.ToString("N0")</span>
+        </div>
+    </div>
+
+    <!-- Main Permit & Trail Table Container -->
+    <div class="bg-slate-900/90 rounded-2xl shadow-sm border border-slate-800/90 overflow-hidden">
+        <!-- Search & Filter Bar -->
+        <div class="p-6 border-b border-slate-800 bg-slate-950/40">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-5">
+                <div class="w-full md:w-80">
+                    <MudTextField @bind-Value="_searchString"
+                                  Placeholder="Search peak name, municipality..."
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Search"
+                                  IconSize="Size.Medium"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Normal"
+                                  Clearable="true"
+                                  Immediate="true"
+                                  Class="bg-slate-950/70" />
+                </div>
+
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="w-48">
+                        <MudSelect @bind-Value="_selectedMunicipality"
+                                   Label="Cebu Municipality"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Normal"
+                                   Dense="true"
+                                   Class="bg-slate-950/70">
+                            <MudSelectItem Value="@string.Empty">All Municipalities</MudSelectItem>
+                            @foreach (var mun in HikingDestination.Municipalities)
+                            {
+                                <MudSelectItem Value="@mun">@mun</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </div>
+
+                    <div class="w-44">
+                        <MudSelect @bind-Value="_selectedStatus"
+                                   Label="Access Status"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Normal"
+                                   Dense="true"
+                                   Class="bg-slate-950/70">
+                            <MudSelectItem Value="@string.Empty">All Statuses</MudSelectItem>
+                            @foreach (var st in HikingDestination.Statuses)
+                            {
+                                <MudSelectItem Value="@st">@st</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(_searchString) || !string.IsNullOrEmpty(_selectedMunicipality) || !string.IsNullOrEmpty(_selectedStatus))
+                    {
+                        <MudButton Variant="Variant.Text"
+                                   Color="Color.Secondary"
+                                   Size="Size.Small"
+                                   StartIcon="@Icons.Material.Filled.FilterAltOff"
+                                   OnClick="ClearFilters"
+                                   Class="text-slate-400 hover:text-white">
+                            Reset
+                        </MudButton>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <MudTable Items="@FilteredItems"
+                  Dense="false"
+                  Hover="true"
+                  Elevation="0"
+                  Class="w-full">
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortBy="new Func<HikingDestination, object>(x => x.TrailName)">Peak / Trail Details</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<HikingDestination, object>(x => x.LocalMunicipality)">Municipality</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<HikingDestination, object>(x => x.Difficulty)">Difficulty</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<HikingDestination, object>(x => x.ElevationMeters)">Elevation</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<HikingDestination, object>(x => x.Status)">Status</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<HikingDestination, object>(x => x.PermitFee)">Guide/Permit Fee</MudTableSortLabel></MudTh>
+                <MudTh Style="text-align: right;">Actions</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <!-- Trail Name & Description -->
+                <MudTd DataLabel="Trail">
+                    <div class="py-2">
+                        <div class="font-bold text-white leading-snug">
+                            @context.TrailName
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(context.Description))
+                        {
+                            <div class="text-xs text-slate-400 truncate max-w-xs md:max-w-md mt-0.5">
+                                @context.Description
+                            </div>
+                        }
+                    </div>
+                </MudTd>
+
+                <!-- Municipality -->
+                <MudTd DataLabel="Municipality">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-200 border border-slate-700/60">
+                        @context.LocalMunicipality, Cebu
+                    </span>
+                </MudTd>
+
+                <!-- Difficulty -->
+                <MudTd DataLabel="Difficulty">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold @GetDifficultyBadgeClass(context.Difficulty)">
+                        @context.Difficulty
+                    </span>
+                </MudTd>
+
+                <!-- Elevation -->
+                <MudTd DataLabel="Elevation">
+                    <span class="font-mono font-medium text-slate-200">
+                        @context.ElevationMeters m
+                    </span>
+                </MudTd>
+
+                <!-- Status -->
+                <MudTd DataLabel="Status">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold @GetStatusBadgeClass(context.Status)">
+                        <span class="w-1.5 h-1.5 rounded-full mr-1.5 @GetStatusDot(context.Status)"></span>
+                        @context.Status
+                    </span>
+                </MudTd>
+
+                <!-- Permit Fee -->
+                <MudTd DataLabel="Permit Fee">
+                    <span class="font-mono font-bold text-xs @(context.PermitFee == 0 ? "text-emerald-400" : "text-emerald-300")">
+                        @(context.PermitFee == 0 ? "Free Access" : $"₱{context.PermitFee:N0}")
+                    </span>
+                </MudTd>
+
+                <!-- Actions -->
+                <MudTd DataLabel="Actions" Style="text-align: right;">
+                    <div class="inline-flex items-center justify-end gap-1.5">
+                        <MudTooltip Text="Edit Trail Details">
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           OnClick="@(() => HandleEdit(context))" />
+                        </MudTooltip>
+
+                        <MudTooltip Text="Cycle Weather Advisory / Status">
+                            <MudIconButton Icon="@Icons.Material.Filled.WarningAmber"
+                                           Color="Color.Warning"
+                                           Size="Size.Small"
+                                           OnClick="@(() => ToggleStatus(context))" />
+                        </MudTooltip>
+
+                        <MudTooltip Text="Remove Peak Record">
+                            <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline"
+                                           Color="Color.Error"
+                                           Size="Size.Small"
+                                           OnClick="@(() => HandleDelete(context))" />
+                        </MudTooltip>
+                    </div>
+                </MudTd>
+            </RowTemplate>
+
+            <NoRecordsContent>
+                <div class="py-12 text-center">
+                    <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Default" Class="mb-3 text-slate-500" />
+                    <p class="text-sm font-semibold text-slate-200">No trail records found</p>
+                    <p class="text-xs text-slate-400 mt-1">Try resetting active filters or register a new Cebu hiking spot.</p>
+                </div>
+            </NoRecordsContent>
+
+            <PagerContent>
+                <MudTablePager PageSizeOptions="new int[] { 5, 10, 25, 50 }" />
+            </PagerContent>
+        </MudTable>
+    </div>
+</div>
+
+@code {
+    private string _searchString = string.Empty;
+    private string _selectedMunicipality = string.Empty;
+    private string _selectedStatus = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        HikingService.OnChange += OnStateChanged;
+    }
+
+    private void OnStateChanged() => InvokeAsync(StateHasChanged);
+
+    private IEnumerable<HikingDestination> FilteredItems
+    {
+        get
+        {
+            var query = HikingService.GetAll().AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(_selectedMunicipality))
+                query = query.Where(t => string.Equals(t.LocalMunicipality, _selectedMunicipality, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(_selectedStatus))
+                query = query.Where(t => string.Equals(t.Status, _selectedStatus, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(_searchString))
+            {
+                var term = _searchString.Trim();
+                query = query.Where(t =>
+                    t.TrailName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    t.LocalMunicipality.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    t.Difficulty.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    t.Description.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    t.ElevationMeters.ToString().Contains(term)
+                );
+            }
+
+            return query;
+        }
+    }
+
+    private void ClearFilters()
+    {
+        _searchString = string.Empty;
+        _selectedMunicipality = string.Empty;
+        _selectedStatus = string.Empty;
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<TrailDialog>("Register Cebu Trail", options);
+        var result = await dialog.Result;
+
+        if (result != null && !result.Canceled && result.Data is HikingDestination newTrail)
+        {
+            HikingService.Add(newTrail);
+            Snackbar.Add($"Trail '{newTrail.TrailName}' registered successfully!", Severity.Success);
+        }
+    }
+
+    private async Task HandleEdit(HikingDestination trail)
+    {
+        var parameters = new DialogParameters<TrailDialog>
+        {
+            { x => x.Trail, trail },
+            { x => x.IsEdit, true }
+        };
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<TrailDialog>("Edit Trail Details", parameters, options);
+        var result = await dialog.Result;
+
+        if (result != null && !result.Canceled && result.Data is HikingDestination updatedTrail)
+        {
+            HikingService.Update(updatedTrail);
+            Snackbar.Add($"Trail '{updatedTrail.TrailName}' updated successfully!", Severity.Success);
+        }
+    }
+
+    private async Task HandleDelete(HikingDestination trail)
+    {
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            "Delete Confirmation",
+            $"Are you sure you want to remove '{trail.TrailName}' from the registry?",
+            yesText: "Delete",
+            cancelText: "Cancel");
+
+        if (confirmed == true)
+        {
+            HikingService.Delete(trail.Id);
+            Snackbar.Add($"Trail '{trail.TrailName}' removed.", Severity.Info);
+        }
+    }
+
+    private void ToggleStatus(HikingDestination trail)
+    {
+        trail.Status = trail.Status switch
+        {
+            "Open" => "Weather Advisory",
+            "Weather Advisory" => "Closed",
+            "Closed" => "Open",
+            _ => "Open"
+        };
+        HikingService.Update(trail);
+        Snackbar.Add($"Status updated to '{trail.Status}' for '{trail.TrailName}'.", Severity.Info);
+    }
+
+    private async Task ConfirmReset()
+    {
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            "Reset Sample Data",
+            "Restore default Cebu hiking destinations and discard runtime edits?",
+            yesText: "Reset",
+            cancelText: "Cancel");
+
+        if (confirmed == true)
+        {
+            HikingService.ResetToDefaults();
+            Snackbar.Add("Trail store reset to sample defaults.", Severity.Warning);
+        }
+    }
+
+    private string GetDifficultyBadgeClass(string difficulty) => difficulty switch
+    {
+        "Easy" => "bg-emerald-950/60 text-emerald-300 border border-emerald-800/40",
+        "Moderate" => "bg-amber-950/60 text-amber-300 border border-amber-800/40",
+        "Expert" => "bg-rose-950/60 text-rose-300 border border-rose-800/40",
+        _ => "bg-slate-800 text-slate-300 border border-slate-700"
+    };
+
+    private string GetStatusBadgeClass(string status) => status switch
+    {
+        "Open" => "bg-emerald-950/60 text-emerald-300 border border-emerald-800/50",
+        "Weather Advisory" => "bg-amber-950/60 text-amber-300 border border-amber-800/50",
+        "Closed" => "bg-rose-950/60 text-rose-300 border border-rose-800/50",
+        _ => "bg-slate-800 text-slate-300 border border-slate-700"
+    };
+
+    private string GetStatusDot(string status) => status switch
+    {
+        "Open" => "bg-emerald-400",
+        "Weather Advisory" => "bg-amber-400",
+        "Closed" => "bg-rose-400",
+        _ => "bg-slate-400"
+    };
+
+    public void Dispose()
+    {
+        HikingService.OnChange -= OnStateChanged;
+    }
+}

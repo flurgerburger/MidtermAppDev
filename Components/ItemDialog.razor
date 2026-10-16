@@ -1,0 +1,149 @@
+@inject ISnackbar Snackbar
+
+<MudDialog Class="backdrop-blur-sm max-w-lg w-full">
+    <TitleContent>
+        <div class="flex items-center gap-2 text-slate-800 dark:text-slate-100 font-bold text-lg">
+            <MudIcon Icon="@(IsEdit ? Icons.Material.Filled.EditNote : Icons.Material.Filled.AddBox)" Color="Color.Primary" />
+            <span>@(IsEdit ? "Edit Record" : "Create New Record")</span>
+        </div>
+    </TitleContent>
+
+    <DialogContent>
+        <div class="space-y-4 py-2">
+            <!-- Title -->
+            <MudTextField @bind-Value="_model.Title"
+                          Label="Title"
+                          Placeholder="e.g. System Performance Benchmark"
+                          Variant="Variant.Outlined"
+                          Required="true"
+                          RequiredError="Title is required"
+                          Immediate="true"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Title" />
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Category -->
+                <MudSelect @bind-Value="_model.Category"
+                           Label="Category"
+                           Variant="Variant.Outlined"
+                           AnchorOrigin="Origin.BottomCenter"
+                           Adornment="Adornment.Start"
+                           AdornmentIcon="@Icons.Material.Filled.Category">
+                    @foreach (var cat in GenericItem.DefaultCategories)
+                    {
+                        <MudSelectItem Value="@cat">@cat</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <!-- Status -->
+                <MudSelect @bind-Value="_model.Status"
+                           Label="Status"
+                           Variant="Variant.Outlined"
+                           AnchorOrigin="Origin.BottomCenter"
+                           Adornment="Adornment.Start"
+                           AdornmentIcon="@Icons.Material.Filled.Flag">
+                    @foreach (var status in GenericItem.DefaultStatuses)
+                    {
+                        <MudSelectItem Value="@status">@status</MudSelectItem>
+                    }
+                </MudSelect>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Value -->
+                <MudNumericField @bind-Value="_model.Value"
+                                 Label="Value / Metric"
+                                 Format="N2"
+                                 Min="0"
+                                 Step="10m"
+                                 Variant="Variant.Outlined"
+                                 Adornment="Adornment.Start"
+                                 AdornmentIcon="@Icons.Material.Filled.AttachMoney" />
+
+                <!-- DatePicker -->
+                <MudDatePicker @bind-Date="_selectedDate"
+                               Label="Effective Date"
+                               Variant="Variant.Outlined"
+                               Editable="true"
+                               DateFormat="yyyy-MM-dd"
+                               Adornment="Adornment.Start"
+                               AdornmentIcon="@Icons.Material.Filled.CalendarMonth" />
+            </div>
+
+            <!-- Description -->
+            <MudTextField @bind-Value="_model.Description"
+                          Label="Description"
+                          Placeholder="Detailed notes, scope, or remarks..."
+                          Variant="Variant.Outlined"
+                          Lines="3"
+                          Immediate="true" />
+        </div>
+    </DialogContent>
+
+    <DialogActions>
+        <div class="flex items-center justify-end gap-2 px-4 py-2 w-full border-t border-slate-100 dark:border-slate-800">
+            <MudButton Variant="Variant.Text"
+                       Color="Color.Default"
+                       OnClick="Cancel">
+                Cancel
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Save"
+                       OnClick="Submit">
+                @(IsEdit ? "Save Changes" : "Create Item")
+            </MudButton>
+        </div>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public GenericItem? Item { get; set; }
+
+    [Parameter]
+    public bool IsEdit { get; set; } = false;
+
+    private GenericItem _model = new();
+    private DateTime? _selectedDate;
+
+    protected override void OnInitialized()
+    {
+        if (Item != null)
+        {
+            _model = Item.Clone();
+            _selectedDate = _model.Date;
+        }
+        else
+        {
+            _model = new GenericItem
+            {
+                Category = GenericItem.DefaultCategories.FirstOrDefault() ?? "General",
+                Status = "Active",
+                Value = 100.00m
+            };
+            _selectedDate = DateTime.Today;
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void Submit()
+    {
+        if (string.IsNullOrWhiteSpace(_model.Title))
+        {
+            Snackbar.Add("Please enter a valid title for the record.", Severity.Warning);
+            return;
+        }
+
+        _model.Date = _selectedDate ?? DateTime.Today;
+        MudDialog.Close(DialogResult.Ok(_model));
+    }
+}

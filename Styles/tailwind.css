@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@source "../**/*.razor";
+@source "../**/*.html";
+@source "../**/*.cshtml";
+@source "../**/*.cs";
+
+/* Modern typography and utility styling */
+@layer base {
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+}

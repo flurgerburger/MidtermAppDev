@@ -1,0 +1,218 @@
+.dashboard-layout {
+    box-sizing: border-box;
+    display: grid;
+    grid-auto-rows: max-content;
+    gap: 2rem;
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding: 2rem 1.5rem;
+}
+
+::deep .dashboard-card {
+    box-sizing: border-box;
+    min-width: 0;
+    padding: 1.5rem;
+}
+
+.dashboard-hero {
+    min-height: 16rem;
+}
+
+.dashboard-hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    max-width: 52rem;
+}
+
+.dashboard-title,
+.dashboard-description {
+    margin: 0;
+}
+
+.dashboard-hero-actions {
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.dashboard-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+::deep .dashboard-metric-card {
+    display: flex;
+    min-height: 11rem;
+    overflow: visible;
+}
+
+::deep .dashboard-metric-card > div:last-child {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+::deep .dashboard-metric-card > div:first-child {
+    align-items: stretch;
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+::deep .dashboard-metric-card > div:first-child > div:first-child {
+    width: 100%;
+    padding-right: 0;
+}
+
+::deep .dashboard-metric-card > div:first-child > div:last-child {
+    align-self: flex-end;
+}
+
+::deep .dashboard-metric-card .truncate {
+    overflow: visible;
+    white-space: normal;
+    text-overflow: unset;
+}
+
+.dashboard-content-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
+    align-items: stretch;
+    gap: 1.5rem;
+}
+
+.dashboard-highlighted-panel,
+.dashboard-municipality-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.dashboard-highlighted-panel {
+    grid-column: span 2;
+}
+
+.dashboard-section-header {
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+.dashboard-section-heading-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.dashboard-section-heading-copy h2,
+.dashboard-section-heading-copy p {
+    margin: 0;
+}
+
+.dashboard-trail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+.trail-preview-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.trail-preview-card__details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.trail-preview-card__badges,
+.trail-preview-card__status-rating,
+.trail-preview-card__location,
+.trail-preview-card__metric-values,
+.trail-preview-card__permit {
+    gap: 0.5rem;
+}
+
+.trail-preview-card__title-location {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 0.25rem;
+}
+
+.trail-preview-card__metrics {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.trail-preview-card__metric-values {
+    flex-wrap: wrap;
+}
+
+.dashboard-municipality-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1.25rem;
+}
+
+.dashboard-municipality-item-heading {
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.375rem;
+}
+
+.dashboard-municipality-action {
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+}
+
+@media (max-width: 1023px) {
+    .dashboard-metric-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-content-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .dashboard-highlighted-panel {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 639px) {
+    .dashboard-layout {
+        gap: 1.5rem;
+        padding: 1.5rem 1rem;
+    }
+
+    .dashboard-metric-grid,
+    .dashboard-trail-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1rem;
+    }
+
+    ::deep .dashboard-card {
+        padding: 1.25rem;
+    }
+
+    .dashboard-hero {
+        min-height: 0;
+    }
+
+    .dashboard-content-grid {
+        gap: 1rem;
+    }
+}

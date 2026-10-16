@@ -1,0 +1,269 @@
+<div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 overflow-hidden">
+    <!-- Toolbar & Filter Area -->
+    <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/50">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <!-- Full-text search -->
+            <div class="w-full md:w-80">
+                <MudTextField @bind-Value="_searchString"
+                              Placeholder="Search by title, description, category..."
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              IconSize="Size.Medium"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Clearable="true"
+                              Immediate="true"
+                              Class="bg-white dark:bg-slate-900" />
+            </div>
+
+            <!-- Category & Status Quick Filters -->
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="w-40">
+                    <MudSelect @bind-Value="_selectedCategory"
+                               Label="Category"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Dense="true"
+                               Class="bg-white dark:bg-slate-900">
+                        <MudSelectItem Value="@string.Empty">All Categories</MudSelectItem>
+                        @foreach (var cat in CategoriesList)
+                        {
+                            <MudSelectItem Value="@cat">@cat</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+
+                <div class="w-36">
+                    <MudSelect @bind-Value="_selectedStatus"
+                               Label="Status"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Dense="true"
+                               Class="bg-white dark:bg-slate-900">
+                        <MudSelectItem Value="@string.Empty">All Statuses</MudSelectItem>
+                        @foreach (var st in GenericItem.DefaultStatuses)
+                        {
+                            <MudSelectItem Value="@st">@st</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+
+                @if (!string.IsNullOrEmpty(_searchString) || !string.IsNullOrEmpty(_selectedCategory) || !string.IsNullOrEmpty(_selectedStatus))
+                {
+                    <MudButton Variant="Variant.Text"
+                               Color="Color.Secondary"
+                               Size="Size.Small"
+                               StartIcon="@Icons.Material.Filled.FilterAltOff"
+                               OnClick="ClearFilters">
+                        Reset Filters
+                    </MudButton>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <MudTable Items="@FilteredItems"
+              Dense="@Dense"
+              Hover="@Hover"
+              Striped="@Striped"
+              Elevation="0"
+              Class="w-full">
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<GenericItem, object>(x => x.Title)">
+                    Title & Details
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<GenericItem, object>(x => x.Category)">
+                    Category
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<GenericItem, object>(x => x.Status)">
+                    Status
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<GenericItem, object>(x => x.Value)">
+                    Value
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<GenericItem, object>(x => x.Date)">
+                    Date
+                </MudTableSortLabel>
+            </MudTh>
+            @if (ShowActions)
+            {
+                <MudTh Style="text-align: right;">Actions</MudTh>
+            }
+        </HeaderContent>
+
+        <RowTemplate>
+            <!-- Title & Description -->
+            <MudTd DataLabel="Title">
+                <div class="py-1">
+                    <div class="font-semibold text-slate-900 dark:text-white leading-snug">
+                        @context.Title
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(context.Description))
+                    {
+                        <div class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs md:max-w-md">
+                            @context.Description
+                        </div>
+                    }
+                </div>
+            </MudTd>
+
+            <!-- Category -->
+            <MudTd DataLabel="Category">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                    @context.Category
+                </span>
+            </MudTd>
+
+            <!-- Status -->
+            <MudTd DataLabel="Status">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold @GetStatusBadgeClass(context.Status)">
+                    <span class="w-1.5 h-1.5 rounded-full mr-1.5 @GetStatusDotClass(context.Status)"></span>
+                    @context.Status
+                </span>
+            </MudTd>
+
+            <!-- Value -->
+            <MudTd DataLabel="Value">
+                <span class="font-mono font-medium text-slate-800 dark:text-slate-200">
+                    @context.Value.ToString("N2")
+                </span>
+            </MudTd>
+
+            <!-- Date -->
+            <MudTd DataLabel="Date">
+                <span class="text-xs text-slate-600 dark:text-slate-400">
+                    @context.Date.ToString("yyyy-MM-dd")
+                </span>
+            </MudTd>
+
+            <!-- Actions -->
+            @if (ShowActions)
+            {
+                <MudTd DataLabel="Actions" Style="text-align: right;">
+                    <div class="inline-flex items-center justify-end gap-1">
+                        <MudTooltip Text="Edit Record">
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           OnClick="@(() => OnEdit.InvokeAsync(context))" />
+                        </MudTooltip>
+
+                        <MudTooltip Text="Delete Record">
+                            <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline"
+                                           Color="Color.Error"
+                                           Size="Size.Small"
+                                           OnClick="@(() => OnDelete.InvokeAsync(context))" />
+                        </MudTooltip>
+                    </div>
+                </MudTd>
+            }
+        </RowTemplate>
+
+        <NoRecordsContent>
+            <div class="py-12 flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+                    <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Default" />
+                </div>
+                <h4 class="text-base font-semibold text-slate-700 dark:text-slate-300">No records found</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+                    No items match your active search terms or category filter. Try clearing your filters or creating a new record.
+                </p>
+            </div>
+        </NoRecordsContent>
+
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 5, 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+</div>
+
+@code {
+    [Parameter] public IEnumerable<GenericItem>? Items { get; set; }
+    [Parameter] public EventCallback<GenericItem> OnEdit { get; set; }
+    [Parameter] public EventCallback<GenericItem> OnDelete { get; set; }
+    [Parameter] public bool ShowActions { get; set; } = true;
+    [Parameter] public bool Dense { get; set; } = false;
+    [Parameter] public bool Hover { get; set; } = true;
+    [Parameter] public bool Striped { get; set; } = false;
+
+    private string _searchString = string.Empty;
+    private string _selectedCategory = string.Empty;
+    private string _selectedStatus = string.Empty;
+
+    private IEnumerable<string> CategoriesList =>
+        Items != null
+            ? Items.Select(i => i.Category).Distinct().OrderBy(c => c).ToList()
+            : GenericItem.DefaultCategories;
+
+    private IEnumerable<GenericItem> FilteredItems
+    {
+        get
+        {
+            if (Items == null) return Enumerable.Empty<GenericItem>();
+
+            var query = Items.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(_selectedCategory))
+            {
+                query = query.Where(i => string.Equals(i.Category, _selectedCategory, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(_selectedStatus))
+            {
+                query = query.Where(i => string.Equals(i.Status, _selectedStatus, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(_searchString))
+            {
+                var term = _searchString.Trim();
+                query = query.Where(i =>
+                    (i.Title?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (i.Description?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (i.Category?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (i.Status?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    i.Value.ToString().Contains(term) ||
+                    i.Date.ToString("yyyy-MM-dd").Contains(term)
+                );
+            }
+
+            return query;
+        }
+    }
+
+    private void ClearFilters()
+    {
+        _searchString = string.Empty;
+        _selectedCategory = string.Empty;
+        _selectedStatus = string.Empty;
+    }
+
+    private string GetStatusBadgeClass(string status) => status switch
+    {
+        "Active" => "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50",
+        "Completed" => "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50",
+        "Pending" => "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50",
+        "In Progress" => "bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800/50",
+        "Archived" => "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700",
+        _ => "bg-slate-50 text-slate-700 border border-slate-200"
+    };
+
+    private string GetStatusDotClass(string status) => status switch
+    {
+        "Active" => "bg-emerald-500",
+        "Completed" => "bg-indigo-500",
+        "Pending" => "bg-amber-500",
+        "In Progress" => "bg-sky-500",
+        "Archived" => "bg-slate-400",
+        _ => "bg-slate-400"
+    };
+}

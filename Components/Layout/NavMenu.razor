@@ -1,0 +1,56 @@
+<div class="px-5 py-6 border-b border-slate-800/80 bg-slate-900/40">
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 flex items-center justify-center text-white shadow-lg shadow-emerald-950/50 font-black text-lg border border-emerald-500/30">
+            <MudIcon Icon="@Icons.Material.Filled.Landscape" Size="Size.Small" />
+        </div>
+        <div>
+            <div class="font-extrabold text-base tracking-tight text-white leading-tight">
+                Cebu Hiking
+            </div>
+            <div class="text-xs font-medium text-emerald-400">
+                Peak & Trail Explorer
+            </div>
+        </div>
+    </div>
+</div>
+
+<MudNavMenu Class="px-3 py-5 space-y-2">
+    <div class="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+        EXPLORATION
+    </div>
+
+    <MudNavLink Href="/"
+                Match="NavLinkMatch.All"
+                Icon="@Icons.Material.Filled.Dashboard"
+                Class="rounded-xl font-medium py-2.5 px-3">
+        Dashboard
+    </MudNavLink>
+
+    <MudNavLink Href="/explore"
+                Icon="@Icons.Material.Filled.Explore"
+                Class="rounded-xl font-medium py-2.5 px-3">
+        Explore Trails
+    </MudNavLink>
+
+    <div class="px-3 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+        MANAGEMENT
+    </div>
+
+    <MudNavLink Href="/permits"
+                Icon="@Icons.Material.Filled.ConfirmationNumber"
+                Class="rounded-xl font-medium py-2.5 px-3">
+        Permit & Activity Log
+    </MudNavLink>
+</MudNavMenu>
+
+<div class="mt-auto p-5 border-t border-slate-800/80 text-xs text-slate-400 bg-slate-900/30">
+    <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300">
+        <div class="flex items-center gap-2 font-semibold text-emerald-400 mb-1.5">
+            <MudIcon Icon="@Icons.Material.Filled.Forest" Size="Size.Small" />
+            <span>Leave No Trace</span>
+        </div>
+        <p class="text-[11px] leading-relaxed text-slate-400">
+            Protect Cebu's mountain ridges. Pack out all trash and respect local guidelines.
+        </p>
+    </div>
+</div>

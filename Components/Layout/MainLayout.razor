@@ -1,0 +1,85 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="_customTheme" IsDarkMode="true" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout Class="dark">
+    <!-- Top Application Bar -->
+    <MudAppBar Elevation="0" Class="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md text-slate-100 px-4 sm:px-6">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Inherit"
+                       Edge="Edge.Start"
+                       OnClick="@ToggleDrawer"
+                       Class="mr-3" />
+
+        <div class="flex items-center gap-3">
+            <span class="font-extrabold text-lg sm:text-xl tracking-tight text-white">Cebu Hiking</span>
+            <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800/50">
+                Cebu Highlands & Trails
+            </span>
+        </div>
+
+        <MudSpacer />
+
+    </MudAppBar>
+
+    <!-- Side Navigation Drawer -->
+    <MudDrawer @bind-Open="_drawerOpen"
+               ClipMode="DrawerClipMode.Always"
+               Elevation="1"
+               Variant="DrawerVariant.Responsive"
+               Breakpoint="Breakpoint.Md"
+               Class="border-r border-slate-800/80 bg-slate-950 text-slate-200 flex flex-col">
+        <NavMenu />
+    </MudDrawer>
+
+    <!-- Main Content Canvas -->
+    <MudMainContent Class="bg-slate-950 text-slate-100 min-h-screen">
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+    private bool _drawerOpen = true;
+    private readonly MudTheme _customTheme = new()
+    {
+        PaletteDark = new PaletteDark
+        {
+            Primary = "#10b981", // Soft Emerald
+            Secondary = "#f59e0b", // Warm Earth Gold
+            Success = "#34d399", // Sage
+            Info = "#2dd4bf", // Teal
+            Warning = "#fbbf24", // Muted Amber
+            Error = "#f87171", // Terracotta
+            AppbarBackground = "#020617",
+            Background = "#020617",
+            Surface = "#090d16",
+            TextPrimary = "#f1f5f9",
+            TextSecondary = "#94a3b8",
+            DrawerBackground = "#040814",
+            ActionDefault = "#94a3b8"
+        },
+        Typography = new Typography
+        {
+            Default = new DefaultTypography
+            {
+                FontFamily = ["Inter", "Roboto", "sans-serif"]
+            }
+        },
+        LayoutProperties = new LayoutProperties
+        {
+            DefaultBorderRadius = "14px",
+            AppbarHeight = "64px"
+        }
+    };
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+}

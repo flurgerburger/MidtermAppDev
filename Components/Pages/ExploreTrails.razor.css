@@ -1,0 +1,226 @@
+.explore-layout {
+    box-sizing: border-box;
+    display: grid;
+    grid-auto-rows: max-content;
+    gap: 2rem;
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding: 2rem 1.5rem;
+}
+
+.explore-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgb(30 41 59);
+}
+
+.explore-page-heading {
+    min-width: 0;
+}
+
+.explore-page-eyebrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.explore-page-heading h1,
+.explore-page-description {
+    margin: 0;
+}
+
+.explore-page-description {
+    max-width: 42rem;
+    margin-top: 0.5rem;
+}
+
+.explore-page-actions {
+    flex-shrink: 0;
+    gap: 0.75rem;
+}
+
+.explore-view-toggle {
+    gap: 0.25rem;
+    padding: 0.375rem;
+}
+
+.explore-filter-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+    padding: 1.5rem;
+}
+
+.explore-tier-filters {
+    gap: 0.625rem;
+}
+
+.explore-search-filters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    padding-top: 0.25rem;
+}
+
+.explore-active-filters {
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-top: 1rem;
+}
+
+.explore-trail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 1.5rem;
+}
+
+.explore-card {
+    box-sizing: border-box;
+    min-width: 0;
+    padding: 1.5rem;
+}
+
+.trail-explore-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.trail-explore-card__header,
+.trail-explore-card__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
+}
+
+.trail-explore-card__badges {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.trail-explore-card__status-rating {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.trail-explore-card__title-location {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 0.25rem;
+}
+
+.trail-explore-card__title-location h3 {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.trail-explore-card__location {
+    gap: 0.5rem;
+}
+
+.trail-explore-card__location span {
+    overflow-wrap: anywhere;
+}
+
+.trail-explore-card__metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    padding: 0.875rem;
+}
+
+.trail-explore-card__metric-item {
+    min-width: 0;
+    padding-inline: 0.375rem;
+}
+
+.trail-explore-card__metric-item:nth-child(2) {
+    border-left: 1px solid rgb(30 41 59 / 80%);
+    border-right: 1px solid rgb(30 41 59 / 80%);
+}
+
+.trail-explore-card__metric-item span:last-child {
+    overflow-wrap: anywhere;
+}
+
+.trail-explore-card__actions {
+    gap: 0.75rem;
+    padding-top: 0.25rem;
+}
+
+.trail-explore-card__actions > :first-child {
+    min-width: 0;
+}
+
+.explore-empty-card {
+    padding: 3rem;
+}
+
+.explore-table-card {
+    min-width: 0;
+    overflow-x: auto;
+}
+
+@media (max-width: 1023px) {
+    .explore-trail-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .explore-search-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767px) {
+    .explore-page-header {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .explore-page-actions {
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 639px) {
+    .explore-layout {
+        gap: 1.5rem;
+        padding: 1.5rem 1rem;
+    }
+
+    .explore-filter-card,
+    .explore-card {
+        padding: 1.25rem;
+    }
+
+    .explore-trail-grid,
+    .explore-search-filters {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1rem;
+    }
+
+    .explore-tier-filters > span {
+        width: 100%;
+    }
+
+    .explore-active-filters {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .explore-empty-card {
+        padding: 2rem 1.25rem;
+    }
+}

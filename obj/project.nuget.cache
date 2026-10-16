@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "lvi+QZNBgJY=",
+  "success": true,
+  "projectFilePath": "D:\\vsCode\\midterm\\midterm.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\souln\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.12\\microsoft.aspnetcore.app.internal.assets.10.0.12.nupkg.sha512",
+    "C:\\Users\\souln\\.nuget\\packages\\mudblazor\\9.11.0\\mudblazor.9.11.0.nupkg.sha512"
+  ],
+  "logs": []
+}

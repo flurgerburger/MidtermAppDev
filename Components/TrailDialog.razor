@@ -1,0 +1,185 @@
+@inject ISnackbar Snackbar
+
+<MudDialog Class="backdrop-blur-md max-w-lg w-full bg-slate-900 border border-slate-800 text-slate-100">
+    <TitleContent>
+        <div class="flex items-center gap-3 text-white font-extrabold text-lg px-2 pt-2">
+            <div class="w-9 h-9 rounded-xl bg-emerald-950/70 border border-emerald-800/60 text-emerald-400 flex items-center justify-center">
+                <MudIcon Icon="@(IsEdit ? Icons.Material.Filled.EditLocation : Icons.Material.Filled.AddLocationAlt)" Size="Size.Small" />
+            </div>
+            <span>@(IsEdit ? "Edit Cebu Trail Details" : "Register New Cebu Trail")</span>
+        </div>
+    </TitleContent>
+
+    <DialogContent>
+        <div class="space-y-5 py-4 px-2">
+            <!-- Trail Name -->
+            <MudTextField @bind-Value="_model.TrailName"
+                          Label="Peak / Trail Name"
+                          Placeholder="e.g. Osmeña Peak, Mt. Manunggal"
+                          Variant="Variant.Outlined"
+                          Required="true"
+                          RequiredError="Trail name is required"
+                          Immediate="true"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Terrain"
+                          Class="bg-slate-950/70" />
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Local Municipality -->
+                <MudSelect @bind-Value="_model.LocalMunicipality"
+                           Label="Cebu Municipality"
+                           Variant="Variant.Outlined"
+                           AnchorOrigin="Origin.BottomCenter"
+                           Adornment="Adornment.Start"
+                           AdornmentIcon="@Icons.Material.Filled.LocationCity"
+                           Class="bg-slate-950/70">
+                    @foreach (var mun in HikingDestination.Municipalities)
+                    {
+                        <MudSelectItem Value="@mun">@mun</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <!-- Difficulty -->
+                <MudSelect @bind-Value="_model.Difficulty"
+                           Label="Skill Difficulty"
+                           Variant="Variant.Outlined"
+                           AnchorOrigin="Origin.BottomCenter"
+                           Adornment="Adornment.Start"
+                           AdornmentIcon="@Icons.Material.Filled.FitnessCenter"
+                           Class="bg-slate-950/70">
+                    @foreach (var diff in HikingDestination.Difficulties)
+                    {
+                        <MudSelectItem Value="@diff">@diff</MudSelectItem>
+                    }
+                </MudSelect>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Elevation (Meters) -->
+                <MudNumericField @bind-Value="_model.ElevationMeters"
+                                 Label="Peak Elevation"
+                                 Min="0"
+                                 Max="9000"
+                                 Step="50"
+                                 Variant="Variant.Outlined"
+                                 Adornment="Adornment.End"
+                                 AdornmentText="m"
+                                 AdornmentIcon="@Icons.Material.Filled.Landscape"
+                                 Class="bg-slate-950/70" />
+
+                <!-- Status -->
+                <MudSelect @bind-Value="_model.Status"
+                           Label="Access Status"
+                           Variant="Variant.Outlined"
+                           AnchorOrigin="Origin.BottomCenter"
+                           Adornment="Adornment.Start"
+                           AdornmentIcon="@Icons.Material.Filled.Info"
+                           Class="bg-slate-950/70">
+                    @foreach (var st in HikingDestination.Statuses)
+                    {
+                        <MudSelectItem Value="@st">@st</MudSelectItem>
+                    }
+                </MudSelect>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Permit Fee -->
+                <MudNumericField @bind-Value="_model.PermitFee"
+                                 Label="Guide / Environmental Fee"
+                                 Min="0"
+                                 Format="N0"
+                                 Step="10m"
+                                 Variant="Variant.Outlined"
+                                 Adornment="Adornment.Start"
+                                 AdornmentText="₱"
+                                 AdornmentIcon="@Icons.Material.Filled.ConfirmationNumber"
+                                 Class="bg-slate-950/70" />
+
+                <!-- Trail Distance (km) -->
+                <MudNumericField @bind-Value="_model.DistanceKm"
+                                 Label="Distance (km)"
+                                 Min="0.1"
+                                 Format="N1"
+                                 Step="0.5"
+                                 Variant="Variant.Outlined"
+                                 Adornment="Adornment.End"
+                                 AdornmentText="km"
+                                 Class="bg-slate-950/70" />
+            </div>
+
+            <!-- Description -->
+            <MudTextField @bind-Value="_model.Description"
+                          Label="Route Highlights & Trail Notes"
+                          Placeholder="Water sources, terrain features, rock scrambles, guide requirements..."
+                          Variant="Variant.Outlined"
+                          Lines="3"
+                          Immediate="true"
+                          Class="bg-slate-950/70" />
+        </div>
+    </DialogContent>
+
+    <DialogActions>
+        <div class="flex items-center justify-end gap-3 px-4 py-3 w-full border-t border-slate-800">
+            <MudButton Variant="Variant.Text"
+                       Color="Color.Default"
+                       OnClick="Cancel"
+                       Class="text-slate-400 hover:text-white">
+                Cancel
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Check"
+                       OnClick="Submit"
+                       Class="px-5 font-bold shadow-md shadow-emerald-950/50">
+                @(IsEdit ? "Save Changes" : "Register Trail")
+            </MudButton>
+        </div>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public HikingDestination? Trail { get; set; }
+
+    [Parameter]
+    public bool IsEdit { get; set; } = false;
+
+    private HikingDestination _model = new();
+
+    protected override void OnInitialized()
+    {
+        if (Trail != null)
+        {
+            _model = Trail.Clone();
+        }
+        else
+        {
+            _model = new HikingDestination
+            {
+                LocalMunicipality = HikingDestination.Municipalities.FirstOrDefault() ?? "Dalaguete",
+                Difficulty = "Moderate",
+                Status = "Open",
+                ElevationMeters = 800,
+                PermitFee = 50.00m,
+                DistanceKm = 5.0
+            };
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Submit()
+    {
+        if (string.IsNullOrWhiteSpace(_model.TrailName))
+        {
+            Snackbar.Add("Please enter a valid peak/trail name.", Severity.Warning);
+            return;
+        }
+
+        MudDialog.Close(DialogResult.Ok(_model));
+    }
+}
